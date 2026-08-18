@@ -128,7 +128,7 @@ This repo is part of my application for [container-registry/harbor-satellite#542
 
 | Document | Description |
 |---|---|
-| [RFC: Trusted-Peer Artifact Distribution](application/RFC-satellite-p2p-distribution.html) | Full design RFC covering the peer model, digest-graph integrity, source abstraction (ADR-0009 compatible), trust boundary, and air-gapped integration testing |
+| [RFC: Trusted-Peer Artifact Distribution](application/RFC-satellite-p2p-distribution.pdf) ([HTML](application/RFC-satellite-p2p-distribution.html)) | Full design RFC covering the peer model, digest-graph integrity, source abstraction (ADR-0009 compatible), trust boundary, and air-gapped integration testing |
 | [Cover Letter](application/cover-letter.pdf) | Why this project, relevant experience, and what I'd bring to the mentorship |
 | [Resume](application/resume.pdf) | Background in distributed systems, container registries, and edge computing |
 
