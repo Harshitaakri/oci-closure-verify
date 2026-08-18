@@ -8,7 +8,7 @@ when content is being pulled from a peer, and how a **digest-addressed,
 closure-aware** transfer engine satisfies the integrity and predictable-failure
 requirements described in that issue.
 
-**Demo video:** [Watch the demo](https://drive.google.com/file/d/1cddB_osgdjIRfOnXYwNgiM-zy5f1iwxy/view?usp=drive_link)
+**Demo video:** [Watch the demo](https://drive.google.com/file/d/1cddB_osgdjlRfOnXYwNgiM-zy5f1iwxy/view?usp=drive_link)
 
 Three local registry containers stand in for a small trusted-peer topology:
 
