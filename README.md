@@ -8,6 +8,8 @@ when content is being pulled from a peer, and how a **digest-addressed,
 closure-aware** transfer engine satisfies the integrity and predictable-failure
 requirements described in that issue.
 
+**Demo video:** [Watch the demo](https://drive.google.com/file/d/1cddB_osgdjIRfOnXYwNgiM-zy5f1iwxy/view?usp=drive_link)
+
 Three local registry containers stand in for a small trusted-peer topology:
 
 | Container | Role                                    |
@@ -39,6 +41,8 @@ Four demonstrations, run in priority order:
    broken artifact is now live locally. This is exactly the failure mode
    the invariant below forbids.
 
+   <img width="1912" height="782" alt="Image" src="https://github.com/user-attachments/assets/6f231a6a-cd63-4708-b47e-58a253475f9b" />
+
 2. **The invariant (this harness).** A small Go program (`~150–200` lines,
    built directly on `go-containerregistry`) walks the descriptor graph and
    fetches + digest-verifies **leaves → children → root**, publishing the
@@ -46,11 +50,17 @@ Four demonstrations, run in priority order:
    mid-blob-transfer means the root never appears locally; rerunning against
    `peerC` completes successfully and `crane validate` passes.
 
+   <img width="1917" height="718" alt="Image" src="https://github.com/user-attachments/assets/e53725bb-c7ec-4279-866e-f61f9085c630" />
+
 3. **Corruption.** A single byte is flipped in a blob on the peer. The
    digest mismatch is caught and nothing is published.
 
+   <img width="1916" height="795" alt="Image" src="https://github.com/user-attachments/assets/96ba18a4-4420-4484-b56d-19e4020d9217" />
+
 4. **Concurrency.** Two simultaneous requests for the same digest are
    collapsed via singleflight into a single transfer.
+
+   <img width="1917" height="770" alt="Image" src="https://github.com/user-attachments/assets/63a48c98-1ddb-4712-9aac-84b71fa0be8d" />
 
 Every run is captured with `tee`; the pasted output under `results/` is the
 evidence — no GPU or special hardware required to reproduce any of this.
