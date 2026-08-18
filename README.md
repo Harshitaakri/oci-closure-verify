@@ -119,3 +119,23 @@ acceptance criteria in #542, ahead of any full implementation:
 Peer eligibility checks, retry/backoff configuration, and the full
 multi-Satellite e2e topology are out of scope for this experiment and are
 left to the proposal's implementation milestones.
+
+---
+
+## LFX Mentorship 2026 Term 3 — Application
+
+This repo is part of my application for [container-registry/harbor-satellite#542](https://github.com/container-registry/harbor-satellite/issues/542) (CNCF LFX Mentorship, Sep–Nov 2026). All application materials are in [`application/`](application/):
+
+| Document | Description |
+|---|---|
+| [RFC: Trusted-Peer Artifact Distribution](application/RFC-satellite-p2p-distribution.html) | Full design RFC covering the peer model, digest-graph integrity, source abstraction (ADR-0009 compatible), trust boundary, and air-gapped integration testing |
+| [Cover Letter](application/cover-letter.pdf) | Why this project, relevant experience, and what I'd bring to the mentorship |
+| [Resume](application/resume.pdf) | Background in distributed systems, container registries, and edge computing |
+
+**Related PRs:**
+- [container-registry/harbor-satellite#638](https://github.com/container-registry/harbor-satellite/pull/638) — ADR-0010: Peer-to-peer artifact distribution design
+- [container-registry/harbor-satellite#637](https://github.com/container-registry/harbor-satellite/pull/637) — Fix: resolve replication source by digest when present (closes the moved-tag window)
+
+**Program listing:**
+- Issue: [container-registry/harbor-satellite#542](https://github.com/container-registry/harbor-satellite/issues/542)
+- CNCF Mentoring: [cncf/mentoring#1999](https://github.com/cncf/mentoring/issues/1999)

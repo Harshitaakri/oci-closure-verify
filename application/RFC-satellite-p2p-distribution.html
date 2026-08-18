@@ -1,0 +1,1168 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RFC: Trusted-Peer Artifact Distribution for Harbor Satellite</title>
+<style>
+:root{--ink:#1a1a1f;--muted:#5b5b66;--accent:#0e7490;--accent-soft:#e3f4f7;
+--line:#e3e3ea;--bg:#ffffff;--wash:#f7f7fa;--code:#f4f3f9;--good:#1baf7a;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--wash);color:var(--ink);
+font:16px/1.65 "Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Helvetica,Arial,sans-serif;
+-webkit-font-smoothing:antialiased}
+.page{max-width:980px;margin:0 auto;background:var(--bg);
+box-shadow:0 0 0 1px var(--line),0 18px 50px rgba(26,26,50,.08)}
+.band{background:linear-gradient(135deg,#0b3550 0%,#0e7490 55%,#12a5b4 100%);
+color:#fff;padding:40px 56px 34px}
+.band .kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+opacity:.85;margin:0 0 10px;font-weight:600}
+.band h1{font-size:29px;line-height:1.3;margin:0;font-weight:700;letter-spacing:-.01em}
+.band .pills{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px}
+.pill{display:inline-block;padding:3px 12px;border-radius:999px;font-size:12.5px;
+font-weight:600;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35)}
+main{padding:34px 56px 56px}
+h1,h2,h3,h4{line-height:1.3;scroll-margin-top:16px}
+main>h1{display:none}
+h2{font-size:22px;margin:42px 0 14px;padding-top:22px;border-top:1px solid var(--line);
+color:var(--accent);letter-spacing:-.01em}
+h2:first-of-type{border-top:none;padding-top:0;margin-top:8px}
+h3{font-size:17px;margin:26px 0 10px}
+p{margin:10px 0}
+a{color:#2a5bd7;text-decoration:none;border-bottom:1px solid #c9d6f5}
+a:hover{border-bottom-color:#2a5bd7}
+strong{color:#111}
+em{color:inherit}
+hr{border:none;border-top:1px solid var(--line);margin:34px 0}
+code{font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+background:var(--code);border:1px solid #d5eaee;border-radius:4px;padding:1px 5px;color:#0d5d73}
+pre code{display:block;padding:12px 14px;overflow-x:auto}
+blockquote{margin:14px 0;padding:10px 18px;border-left:3px solid var(--accent);
+background:var(--accent-soft);border-radius:0 6px 6px 0;color:#3c3c46}
+ul,ol{padding-left:26px;margin:10px 0}
+li{margin:5px 0}
+table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14.2px}
+th{background:var(--accent-soft);color:#0c4a5e;text-align:left;font-weight:650;
+padding:8px 11px;border:1px solid #d9d4ee}
+td{padding:8px 11px;border:1px solid var(--line);vertical-align:top}
+tbody tr:nth-child(even){background:#fafafc}
+figure.diagram{margin:22px 0;padding:16px 14px 10px;border:1px solid var(--line);
+border-radius:10px;background:#fff}
+figure.diagram svg{display:block;width:100%;height:auto;max-width:100%}
+figure.diagram figcaption{text-align:center;font-size:12.5px;color:var(--muted);
+margin-top:8px}
+footer{padding:20px 56px 34px;color:var(--muted);font-size:12.5px;
+border-top:1px solid var(--line)}
+/* ToC */
+h2#table-of-contents + ol{columns:2;column-gap:44px;background:var(--wash);
+border:1px solid var(--line);border-radius:10px;padding:18px 22px 18px 44px;font-size:14.5px}
+h2#table-of-contents + ol li{break-inside:avoid}
+h2#table-of-contents + ol a{border-bottom:none;color:#2a5bd7}
+@media (max-width:760px){
+ .band{padding:28px 22px}.band h1{font-size:22px}
+ main{padding:24px 22px 40px}footer{padding:18px 22px 30px}
+ h2#table-of-contents + ol{columns:1}
+}
+@media print{
+ body{background:#fff}
+ .page{box-shadow:none;max-width:none}
+ .band{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ a{color:inherit;border-bottom:none}
+ h2{break-after:avoid}
+ figure.diagram,table{break-inside:avoid}
+}
+
+.fig{margin:24px 0;padding:16px 14px 10px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.fig svg{width:100%;height:auto;display:block}
+.fig figcaption{font-size:13px;color:var(--muted);margin-top:10px;text-align:center}
+</style></head><body><div class="page"><div class="band">
+<p class="kicker">RFC · Harbor Satellite · Draft for discussion</p>
+<h1>Trusted-Peer Artifact Distribution for Harbor Satellite — Air-Gapped P2P Image Proxying with Digest-Graph Integrity</h1>
+<div class="pills">
+<span class="pill">Upstream: harbor-satellite#542</span>
+<span class="pill">Program: cncf/mentoring#1999</span>
+<span class="pill">Author: Harshita Kumari · Harshitaakri</span>
+<span class="pill">Updated 2026-08-18</span>
+</div></div><main>
+<h1 id="rfc-trusted-peer-artifact-distribution-for-harbor-satellite--air-gapped-p2p-image-proxying-with-digest-graph-integrity">RFC: Trusted-Peer Artifact Distribution for Harbor Satellite — Air-Gapped P2P Image Proxying with Digest-Graph Integrity</h1>
+<table>
+<tbody>
+<tr class="odd">
+<td><strong>Status</strong></td>
+<td>Draft for discussion</td>
+</tr>
+<tr class="even">
+<td><strong>Primary Author</strong></td>
+<td>Harshita Kumari (<a href="https://github.com/Harshitaakri"><code>Harshitaakri</code></a>)</td>
+</tr>
+<tr class="odd">
+<td><strong>Collaborators</strong></td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td><strong>Reviewers</strong></td>
+<td>@NucleoFusion (Lakshit Singh), @bupd (Prasanth Baskar), @Vad1mo (Vadim Bauer), @OrlinVasilev (Orlin Vasilev) — Harbor Satellite maintainers/mentors</td>
+</tr>
+<tr class="odd">
+<td><strong>Upstream tracking</strong></td>
+<td><a href="https://github.com/container-registry/harbor-satellite/issues/542">harbor-satellite#542</a> · program listing <a href="https://github.com/cncf/mentoring/issues/1999">cncf/mentoring#1999</a> · digest-drift fix <a href="https://github.com/container-registry/harbor-satellite/pull/637">PR #637</a> · ADR-0010 draft <a href="https://github.com/container-registry/harbor-satellite/pull/638">PR #638</a></td>
+</tr>
+<tr class="even">
+<td><strong>Companion experiment</strong></td>
+<td><a href="https://github.com/Harshitaakri/oci-closure-verify"><code>oci-closure-verify</code></a> — Go verification harness against real local OCI registries: root-visible-last publication, fail-closed missing-manifest handling, digest-verified corruption detection, singleflight dedup (<a href="https://drive.google.com/file/d/1cddB_osgdjlRfOnXYwNgiM-zy5f1iwxy/view?usp=drive_link">recorded demo</a>)</td>
+</tr>
+<tr class="odd">
+<td><strong>Last updated</strong></td>
+<td>2026-08-18</td>
+</tr>
+</tbody>
+</table>
+<h3 id="approvers">Approvers</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>yes</th>
+<th>not yet</th>
+<th>Date</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>@NucleoFusion</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>@bupd</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>@Vad1mo</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>@OrlinVasilev</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol type="1">
+<li><a href="#overview">Overview</a></li>
+<li><a href="#motivation">Motivation</a></li>
+<li><a href="#requirements">Requirements</a></li>
+<li><a href="#background--the-current-architecture-verified-at-code-level">Background — the current architecture, verified at code level</a></li>
+<li><a href="#goals-and-non-goals">Goals and Non-Goals</a></li>
+<li><a href="#product--user-use-cases">Product &amp; User Use Cases</a></li>
+<li><a href="#gap-analysis--what-is-and-isnt-captured-upstream">Gap Analysis — what is and isn't captured upstream</a></li>
+<li><a href="#prior-art--landscape">Prior Art &amp; Landscape</a></li>
+<li><a href="#design">Design</a></li>
+<li><a href="#reference-experiment--reproducible-correctness-demonstration">Reference Experiment — reproducible correctness demonstration</a></li>
+<li><a href="#failure-mode-matrix">Failure-Mode Matrix</a></li>
+<li><a href="#performance--resource-envelope">Performance &amp; Resource Envelope</a></li>
+<li><a href="#timeline">Timeline</a></li>
+<li><a href="#dependencies">Dependencies</a></li>
+<li><a href="#alternatives-considered">Alternatives Considered</a></li>
+<li><a href="#operations">Operations</a></li>
+<li><a href="#security--privacy--compliance">Security / Privacy / Compliance</a></li>
+<li><a href="#risks">Risks</a></li>
+<li><a href="#future-work">Future Work</a></li>
+<li><a href="#open-questions-for-maintainers">Open Questions for Maintainers</a></li>
+<li><a href="#audit-log">Audit Log</a></li>
+<li><a href="#references">References</a></li>
+</ol>
+<hr />
+<h2 id="overview">Overview</h2>
+<p>Harbor Satellite makes OCI images and artifacts available at edge locations. When a Satellite in an air-gapped or intermittently connected deployment misses an artifact, its only recovery paths today are a central registry, Ground Control, or manually imported offline media — even when <strong>another trusted Satellite on the same local network already holds the exact content</strong>.</p>
+<p>This RFC proposes an <strong>opt-in trusted-peer distribution mode</strong>: a Satellite consults a configured set of trusted local peers, determines which peer holds a requested OCI artifact, and copies that artifact into its own local content store — with <strong>no Internet and no Ground Control connectivity required</strong>, and with OCI digest-based integrity preserved end-to-end.</p>
+<p>The design rests on one structural observation and one correctness principle:</p>
+<ul>
+<li><strong>Structural</strong>: every Satellite already fronts an OCI Distribution API — today via embedded Zot, in the target architecture via the transparent proxy serving retained content (<a href="https://github.com/container-registry/harbor-satellite/blob/main/docs/decisions/0009-transparent-oci-registry-proxy.md">ADR-0009</a>). Therefore <strong>the peer read path requires no new wire protocol</strong>. The engineering surface is peer <em>selection</em>, <em>trust</em>, and <em>transfer correctness</em> — not transport invention.</li>
+<li><strong>Correctness</strong>: an OCI artifact is a <strong>descriptor graph</strong>, not a manifest. "Peer has the manifest" is not "peer has the artifact," and "we fetched the manifest" is not "the artifact may become visible." The transfer engine therefore enforces closure-complete, digest-verified, <strong>root-last</strong> publication with idempotent crash recovery (§9.3–§9.4), so that a partially transferred artifact can never be observed by a consumer.</li>
+</ul>
+<p>The proposal is deliberately shaped to survive the ADR-0009 transition (Crane → ORAS, Zot leaving the target architecture): peers are modeled as one more <strong>content source</strong> behind the same resolve/fetch/copy abstraction that ADR-0009 mandates, selected after local content and before (or instead of) upstream.</p>
+<h2 id="motivation">Motivation</h2>
+<p>Edge fleets exist precisely where connectivity is worst: retail branches, factory floors, vessels, defense sites. Operational reality in such fleets:</p>
+<ol type="1">
+<li><strong>Rollout waves are LAN-redundant.</strong> When a desired-state update adds <code>app:v42</code> to 30 Satellites on one site network, today each Satellite independently pulls the same bytes across the constrained uplink — or waits for media. The first Satellite to hold the artifact could serve the other 29 at LAN speed.</li>
+<li><strong>Air-gapped sites bootstrap by sneakernet.</strong> Content is imported to <em>one</em> Satellite via offline media; propagating it to N others currently means N manual imports. Trusted-peer distribution turns one import into a site-wide seed.</li>
+<li><strong>Ground Control outages should degrade, not disable.</strong> A Satellite that misses content during a GC outage has a healthy neighbor with the bytes; the current architecture cannot use it.</li>
+<li><strong>Bandwidth cost is asymmetric.</strong> Uplink (satellite/cellular/VPN) is expensive and slow; LAN is abundant. Every peer-served byte is an uplink byte saved.</li>
+</ol>
+<p>The upstream issue (<a href="https://github.com/container-registry/harbor-satellite/issues/542">#542</a>) and program listing name exactly this capability, and require the design to "work without Internet or Ground Control connectivity and preserve OCI digest-based integrity verification."</p>
+<h2 id="requirements">Requirements</h2>
+<h3 id="functional-requirements">Functional requirements</h3>
+<table>
+<thead>
+<tr class="header">
+<th>ID</th>
+<th>Requirement</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>FR1</td>
+<td>Opt-in configuration of trusted peer endpoints, timeouts, retry policy, concurrency limits, and feature enablement; <strong>zero behavior change when disabled</strong></td>
+<td>Listing expected outcome</td>
+</tr>
+<tr class="even">
+<td>FR2</td>
+<td>Peer selection and artifact-availability checks for OCI manifests <strong>and blobs</strong>, addressed by digest</td>
+<td>Listing expected outcome</td>
+</tr>
+<tr class="odd">
+<td>FR3</td>
+<td>A peer-to-peer transfer path that imports requested artifacts into the local Satellite content store and <strong>verifies manifest and blob digests</strong></td>
+<td>Listing expected outcome</td>
+</tr>
+<tr class="even">
+<td>FR4</td>
+<td>Deterministic fallback behavior when no eligible peer is reachable (upstream if connected; explicit failure otherwise)</td>
+<td>Listing expected outcome</td>
+</tr>
+<tr class="odd">
+<td>FR5</td>
+<td>Metrics and structured logs for peer attempts, transfer outcomes, bytes transferred, and cache-fill results</td>
+<td>Listing expected outcome</td>
+</tr>
+<tr class="even">
+<td>FR6</td>
+<td>Unit and integration tests, including a <strong>multi-Satellite air-gapped test environment</strong> demonstrating successful transfer and failure recovery</td>
+<td>Listing expected outcome</td>
+</tr>
+<tr class="odd">
+<td>FR7</td>
+<td>Works for container images <strong>and arbitrary OCI artifacts</strong> (Helm charts, SBOMs, signatures, Wasm, models) — the content model is descriptor graphs</td>
+<td>ADR-0009 alignment</td>
+</tr>
+<tr class="even">
+<td>FR8</td>
+<td>Operator documentation: configuration and troubleshooting</td>
+<td>Listing expected outcome</td>
+</tr>
+</tbody>
+</table>
+<h3 id="non-functional-requirements">Non-functional requirements</h3>
+<table>
+<thead>
+<tr class="header">
+<th>ID</th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>NFR1</td>
+<td><strong>No Ground Control or Internet dependency</strong> on the peer path; all decisions computable from local desired state + peer responses</td>
+</tr>
+<tr class="even">
+<td>NFR2</td>
+<td><strong>Digest-preserving</strong> transfer: bytes stored locally hash to exactly the digests advertised by the descriptor graph (no media-type rewriting on the peer path; see §9.4)</td>
+</tr>
+<tr class="odd">
+<td>NFR3</td>
+<td><strong>BYO-registry compatible</strong>: the baseline uses only OCI Distribution primitives, so it works whether local storage is embedded Zot today, a bring-your-own registry (<code>docker-compose.byo.yml</code>), or the ADR-0009 ORAS OCI layout tomorrow</td>
+</tr>
+<tr class="even">
+<td>NFR4</td>
+<td><strong>Edge resource envelope</strong>: streaming I/O (no whole-blob buffering), bounded concurrency, optional bandwidth cap</td>
+</tr>
+<tr class="odd">
+<td>NFR5</td>
+<td><strong>Fail-closed</strong>: any verification failure results in no visible artifact and a demoted peer, never a partially visible artifact</td>
+</tr>
+<tr class="even">
+<td>NFR6</td>
+<td>Survives the ADR-0009 architecture transition without redesign (source abstraction, §9.1)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="background--the-current-architecture-verified-at-code-level">Background — the current architecture, verified at code level</h2>
+<p>The following facts were verified directly against <code>main</code> (clone of 2026-08-17) and anchor every design decision below.</p>
+<table>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Verified fact</th>
+<th>Where</th>
+<th>Implication for this design</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>B1</td>
+<td>Replication is state-driven: Ground Control desired state → <code>Replicator</code> interface → local registry</td>
+<td><code>internal/satellite/state/replicator.go</code>, <code>state_process.go</code></td>
+<td>The peer path slots in as an alternative <em>source</em> for satisfying desired state, not a new subsystem</td>
+</tr>
+<tr class="even">
+<td>B2</td>
+<td><code>BasicReplicator</code> builds <strong>tag-based</strong> references (<code>Entity{Name, Repository, Tag, Digest}</code>, refs formatted as <code>repo/name:tag</code>) and re-resolves at copy time</td>
+<td><code>replicator.go</code> (<code>Replicate</code>)</td>
+<td>Confirms the community-reported tag/digest divergence risk at the struct level; the peer path must be <strong>digest-addressed end-to-end</strong>, with tags resolved once at the desired-state source</td>
+</tr>
+<tr class="odd">
+<td>B3</td>
+<td>The current copy path is <strong>single-image oriented</strong> (<code>desc.Image()</code>) and <strong>rewrites media types</strong> (<code>mutate.MediaType(img, types.OCIManifestSchema1)</code>), which changes the stored digest relative to the source</td>
+<td><code>replicator.go</code></td>
+<td>Two consequences: multi-platform indexes are not copied as indexes, and locally stored digests can differ from upstream digests. §9.4 defines the digest-domain rule the peer path must follow</td>
+</tr>
+<tr class="even">
+<td>B4</td>
+<td>The replicator already checks destination blob existence before pulling, "saving bandwidth on crash recovery"</td>
+<td><code>replicator.go</code> doc comment</td>
+<td>Content-addressed idempotency is an accepted pattern in this codebase; §9.3's resume semantics extend it to graph closure</td>
+</tr>
+<tr class="odd">
+<td>B5</td>
+<td><strong>ADR-0009 (proposed, 2026-08-03)</strong> pivots Satellite to a policy-enforcing transparent OCI proxy: <code>oras-go</code> replaces Crane for resolution, graph transfer, metadata, and replication; <strong>"Zot and bbolt are not part of the target architecture"</strong>; local content moves to an ORAS OCI image layout; the proxy pipeline is gate → evidence → execute with fail-closed policy</td>
+<td><code>docs/decisions/0009-transparent-oci-registry-proxy.md</code></td>
+<td>The peer feature must not couple to Zot. Modeled as a content <em>source</em> behind ADR-0009's "one resolve, fetch, copy, and metadata model," it is valid on both sides of the transition</td>
+</tr>
+<tr class="even">
+<td>B6</td>
+<td><code>oras.land/oras-go/v2 v2.6.0</code> is currently an <strong>indirect</strong> dependency; the ORAS rework is not yet implemented</td>
+<td><code>go.mod</code></td>
+<td>There is a live <strong>co-design window</strong>: the peer source can be built ORAS-native rather than retrofitted</td>
+</tr>
+<tr class="odd">
+<td>B7</td>
+<td>Embedded Zot <code>v2.1.16</code> today (<code>internal/satellite/registry/</code>), and a <strong>BYO-registry</strong> deployment mode exists</td>
+<td><code>go.mod</code>, <code>docker-compose.byo.yml</code></td>
+<td>Baseline peer serving must assume nothing beyond OCI Distribution API (NFR3)</td>
+</tr>
+<tr class="even">
+<td>B8</td>
+<td><strong>ADR-0005 (accepted)</strong>: SPIFFE/SPIRE identity for Satellites; mutual authentication; Zero-Touch Registration; TLS config carries <code>cert_file</code>/<code>key_file</code>/<code>ca_file</code>/<code>skip_verify</code></td>
+<td><code>docs/decisions/0005-spiffe-identity-and-security.md</code>, <code>pkg/config/config.go</code></td>
+<td>The trust plane for peer↔︎peer mTLS <strong>already exists</strong>; this RFC extends it rather than inventing identity (§9.6)</td>
+</tr>
+<tr class="odd">
+<td>B9</td>
+<td><strong>ADR-0006 (accepted)</strong>: Satellite lifecycle states <code>pending / online / stale / revoked</code>, SPIFFE-conventioned</td>
+<td><code>docs/decisions/0006-satellite-lifecycle-states.md</code></td>
+<td>Peer eligibility can consume lifecycle state where available: <code>revoked</code> ⇒ never a peer</td>
+</tr>
+<tr class="even">
+<td>B10</td>
+<td>Structured audit logging with syslog and OTel sinks is already configurable</td>
+<td><code>pkg/config/config.go</code>, <code>docs/guides/audit-logging.md</code></td>
+<td>Peer imports emit audit events through the existing pipeline; no new telemetry stack (§9.8)</td>
+</tr>
+<tr class="odd">
+<td>B11</td>
+<td>An e2e harness exists (<code>test/e2e/{docker,testconfig,testdata}</code>, Taskfile-driven compose)</td>
+<td><code>test/e2e/</code></td>
+<td>The multi-Satellite air-gapped environment (FR6) extends this harness instead of introducing a new one</td>
+</tr>
+</tbody>
+</table>
+<h2 id="goals-and-non-goals">Goals and Non-Goals</h2>
+<h3 id="goals">Goals</h3>
+<ul>
+<li>G1 — An <strong>approved ADR</strong> covering architecture, trust model, failure modes, and headless/air-gapped compatibility. ADR-0010 is drafted upstream as <a href="https://github.com/container-registry/harbor-satellite/pull/638">PR #638</a>; this document is the extended design record backing it.</li>
+<li>G2 — Opt-in trusted-peer configuration model (FR1) with strict validation and fail-closed semantics.</li>
+<li>G3 — Digest-addressed availability checking and <strong>closure-complete, digest-verified, root-last</strong> transfer (FR2–FR3, §9.3–§9.4).</li>
+<li>G4 — Deterministic fallback chain and peer health management (FR4, §9.5).</li>
+<li>G5 — First-class observability: metrics, structured logs, audit events (FR5, §9.8).</li>
+<li>G6 — Multi-Satellite air-gapped integration environment with fault injection, seeded by the reference experiment (FR6, §10).</li>
+<li>G7 — Operator documentation (FR8).</li>
+</ul>
+<h3 id="non-goals-v1">Non-Goals (v1)</h3>
+<ul>
+<li>N1 — <strong>Dynamic peer discovery</strong> (mDNS/DNS-SD/DHT/gossip). v1 peers are explicitly configured; discovery is future work layered on the same source abstraction (§19).</li>
+<li>N2 — <strong>Untrusted or semi-trusted peers.</strong> v1 trust is binary and allowlisted.</li>
+<li>N3 — <strong>WAN/cross-site federation.</strong> Scope is the local network segment.</li>
+<li>N4 — <strong>Changes to signing/verification trust roots.</strong> Integrity continues to come from OCI digests; signature verification remains whatever policy the Satellite already enforces.</li>
+<li>N5 — <strong>Replacing desired-state replication.</strong> The peer path is a <em>source optimization</em> for satisfying desired state (and, in the proxy model, cache fill) — not a new state protocol.</li>
+<li>N6 — <strong>Peer-to-peer push.</strong> v1 is pull-only from the requesting Satellite's perspective; nothing is written to a peer.</li>
+</ul>
+<h2 id="product--user-use-cases">Product &amp; User Use Cases</h2>
+<table>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Scenario</th>
+<th>Without peers</th>
+<th>With trusted-peer distribution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>U1</td>
+<td><strong>Rollout wave on one site</strong> — desired state adds <code>app:v42</code> to 30 Satellites behind one uplink</td>
+<td>30 uplink pulls of identical bytes</td>
+<td>1 uplink pull; 29 LAN fills; uplink bytes reduced ~29/30 for that artifact</td>
+</tr>
+<tr class="even">
+<td>U2</td>
+<td><strong>Fully air-gapped site</strong> — content arrives on offline media at one Satellite</td>
+<td>N manual imports</td>
+<td>One import; peers fill from the seeded Satellite with digest verification</td>
+</tr>
+<tr class="odd">
+<td>U3</td>
+<td><strong>Ground Control outage</strong> — a Satellite missed a wave and GC is unreachable</td>
+<td>Stuck until GC returns</td>
+<td>Fills from any online trusted peer holding the closure</td>
+</tr>
+<tr class="even">
+<td>U4</td>
+<td><strong>Constrained uplink (vessel/cell)</strong></td>
+<td>Every miss pays uplink latency/cost</td>
+<td>Availability check is O(HEAD)s on LAN; transfer at LAN speed</td>
+</tr>
+<tr class="odd">
+<td>U5</td>
+<td><strong>BYO-registry deployment</strong></td>
+<td>—</td>
+<td>Same behavior: baseline requires only Distribution primitives (B7)</td>
+</tr>
+<tr class="even">
+<td>U6</td>
+<td><strong>Arbitrary OCI artifacts</strong> — Helm chart with provenance, SBOM-attached image</td>
+<td>Same gaps</td>
+<td>Same path: closure walker treats every artifact as a descriptor graph (FR7)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="gap-analysis--what-is-and-isnt-captured-upstream">Gap Analysis — what is and isn't captured upstream</h2>
+<h3 id="captured-in-542-and-community-discussion">Captured in #542 and community discussion</h3>
+<p>The upstream thread already contains valuable ground-truth that this design treats as <strong>constraints</strong>, credited to the contributors who established it:</p>
+<ul>
+<li><strong>Tag/digest divergence is real and reproducible</strong> — a mutable tag moving between desired-state recording and copy time causes the destination to receive different bytes than recorded (community reproduction by <code>1amKhush</code>). B2/B3 confirm the mechanism at code level. Constraint absorbed: peer protocol is digest-only; peers are never asked about tags (§9.2).</li>
+<li><strong>The architecture is mid-transition</strong> — ADR-0009 supersedes the Crane/Zot target state, and documented Zot sync behavior was found to be gated behind build tags absent from normal builds (community archaeology by <code>shreyashsri79</code>). Constraint absorbed: no coupling to Zot or its sync extension; source abstraction survives the transition (§9.1).</li>
+<li><strong>BYO-registry portability matters</strong> — raised by <code>harshal0704</code>, whose adjacent state-semantics work (deletion states, re-added artifacts) also informs the local-store interaction. Constraint absorbed as NFR3.</li>
+</ul>
+<h3 id="what-this-rfc-adds-on-top-of-the-prior-discussion">What this RFC adds on top of the prior discussion</h3>
+<ol type="1">
+<li><strong>The digest-domain problem (B3).</strong> Today's copy path rewrites manifest media types, so local digests can differ from source digests. No prior discussion defines which digest domain the peer path verifies against. §9.4 does, and makes the peer path digest-preserving. The source-domain half is already being corrected by the author's <a href="https://github.com/container-registry/harbor-satellite/pull/637">PR #637</a>, which makes replication prefer the recorded digest when available — closing the moved-tag window — with a regression test covering the case.</li>
+<li><strong>Closure-complete, root-last publication as the atomicity mechanism</strong>, with a precise definition of "closure" (including how referrers are and aren't part of it) and of "addressable" (§9.3–§9.4).</li>
+<li><strong>Idempotent crash recovery and per-digest singleflight</strong>, extending the codebase's existing blob-presence pattern (B4) to graph scope.</li>
+<li><strong>A trust model that extends accepted ADR-0005 SPIFFE identity</strong> instead of inventing peer identity, with an explicit threat table (§9.6).</li>
+<li><strong>A 10-row failure-mode matrix</strong> with detection, behavior, and the observable signal for each (§11).</li>
+<li><strong>A reproducible fault-injection experiment</strong> demonstrating the violation and the invariant on real registries, offered as the seed of the FR6 integration suite (§10).</li>
+<li><strong>A complete configuration and observability specification</strong> consistent with existing <code>pkg/config</code> patterns and the audit pipeline (§9.7–§9.8).</li>
+</ol>
+<h2 id="prior-art--landscape">Prior Art &amp; Landscape</h2>
+<table>
+<thead>
+<tr class="header">
+<th>System</th>
+<th>Model</th>
+<th>Why it doesn't fit Satellite's constraints</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Dragonfly</strong></td>
+<td>P2P file/image distribution with scheduler + seed peers</td>
+<td>Requires scheduler/manager infrastructure and general connectivity; node-cache semantics rather than durable registry import; heavy for constrained edge</td>
+</tr>
+<tr class="even">
+<td><strong>Uber Kraken</strong></td>
+<td>Tracker-based P2P registry distribution</td>
+<td>Origin/tracker components assume datacenter topology; not designed for allowlisted, air-gapped, GC-less operation</td>
+</tr>
+<tr class="odd">
+<td><strong>Spegel</strong></td>
+<td>Kubernetes node-local OCI mirror with libp2p discovery</td>
+<td>Cluster-internal ephemeral cache, discovery-based trust, assumes k8s networking; Satellite needs durable import into a standalone registry with statically configured trust</td>
+</tr>
+<tr class="even">
+<td><strong>Zot sync extension</strong></td>
+<td>Registry-to-registry pull mirroring</td>
+<td>Couples the feature to Zot, which is leaving the target architecture (B5); periodic/tag-oriented rather than digest/demand-driven; behavior gated by build tags in practice</td>
+</tr>
+<tr class="odd">
+<td><strong>IPFS/DHT approaches</strong></td>
+<td>Content-addressed swarm</td>
+<td>Open-world discovery and trust model is the opposite of an allowlisted air-gapped fleet; operationally heavy</td>
+</tr>
+<tr class="even">
+<td><strong>Cron <code>skopeo</code>/<code>crane</code> copies</strong></td>
+<td>Scripted mirroring</td>
+<td>No availability logic, no atomic publication, no health/fallback, no observability; exactly the manual toil this feature removes</td>
+</tr>
+</tbody>
+</table>
+<p>The niche Satellite occupies — <strong>statically trusted peers, air-gap-first, durable digest-verified registry import, tiny footprint</strong> — is not served by any of the above. The closest conceptual relative is Spegel's "peers already speak Distribution" insight, which this design adopts while replacing discovery-based trust with configured trust.</p>
+<h2 id="design">Design</h2>
+<h3 id="91-placement--a-peer-is-a-content-source-adr-0009-native">9.1 Placement — a peer is a content source (ADR-0009-native)</h3>
+<p>ADR-0009 mandates "one resolve, fetch, copy, and metadata model" for local and remote content, with <code>oras-go</code> as the graph-transfer substrate and policy evaluated fail-closed before content is served (B5). This design adds <strong>one new implementation of the existing concept "where content comes from"</strong>:</p>
+<pre><code>ContentSource (concept; ORAS Target/ReadOnlyStorage in target arch)
+ ├── LocalStore     — Zot today; ORAS OCI layout in target architecture
+ ├── TrustedPeer    — this RFC: a configured peer&#39;s Distribution endpoint
+ └── Upstream       — Harbor / configured upstream registries</code></pre>
+<p>Resolution order for a required digest: <strong>local → trusted peers → upstream (if reachable) → explicit failure.</strong> In the target proxy pipeline, the peer source participates in stage 3 ("allowed execution: selected source") and its fetched content flows through the same verification and policy gate as upstream content — peer-sourced bytes get <strong>no policy shortcut</strong> (see OQ6).</p>
+<p>Two integration modes, both behind the same source:</p>
+<ul>
+<li><strong>Reconcile-time fill (v1 default):</strong> the state process, on a missing digest, consults peers before upstream. Smallest change; works headless.</li>
+<li><strong>On-demand fill (proxy mode):</strong> a client pull that misses locally triggers a peer-first fill. Natural in the ADR-0009 proxy; enabled second.</li>
+</ul>
+<p>Because <code>oras-go</code> is not yet wired (B6), v1 ships as an adapter implementing today's <code>Replicator</code>-adjacent seam while presenting the ORAS <code>Target</code>-shaped interface internally — so the same engine drops into the proxy architecture unmodified.</p>
+<p><em>Figure 1 — trusted-peer dataflow across the air-gap boundary.</em></p>
+<figure class="fig"><svg viewBox="0 0 920 520" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,system-ui,sans-serif">
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#0e7490"/></marker>
+<marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#9aa4ad"/></marker></defs>
+<rect x="120" y="24" width="250" height="56" rx="10" fill="#f4f6f8" stroke="#c9d2d9"/>
+<text x="245" y="47" text-anchor="middle" font-size="14" font-weight="600" fill="#5b6570">Upstream Registry / Harbor</text>
+<text x="245" y="66" text-anchor="middle" font-size="11.5" fill="#8a949e">optional — may be unreachable</text>
+<rect x="560" y="24" width="260" height="56" rx="10" fill="#f4f6f8" stroke="#c9d2d9"/>
+<text x="690" y="47" text-anchor="middle" font-size="14" font-weight="600" fill="#5b6570">Ground Control</text>
+<text x="690" y="66" text-anchor="middle" font-size="11.5" fill="#8a949e">desired state — optional at runtime</text>
+<line x1="30" y1="118" x2="890" y2="118" stroke="#b45309" stroke-width="1.6" stroke-dasharray="8 6"/>
+<text x="460" y="110" text-anchor="middle" font-size="12.5" font-weight="600" fill="#b45309">air-gap / intermittent WAN boundary</text>
+<rect x="36" y="140" width="848" height="352" rx="14" fill="#fbfdfe" stroke="#d7dee3"/>
+<text x="60" y="166" font-size="12.5" font-weight="700" letter-spacing=".08em" fill="#0e7490">SITE LAN — CONFIGURED TRUSTED PEER SET (mTLS, ADR-0005 identity)</text>
+<rect x="70" y="196" width="290" height="220" rx="12" fill="#ffffff" stroke="#0e7490" stroke-width="1.6"/>
+<text x="215" y="222" text-anchor="middle" font-size="15" font-weight="700" fill="#1a1a1f">Satellite B — requesting</text>
+<rect x="90" y="238" width="250" height="34" rx="7" fill="#e6f6f9" stroke="#bfe3ea"/>
+<text x="215" y="260" text-anchor="middle" font-size="12.5" fill="#0c4a5e">desired state (held locally)</text>
+<rect x="90" y="280" width="250" height="52" rx="7" fill="#e6f6f9" stroke="#bfe3ea"/>
+<text x="215" y="300" text-anchor="middle" font-size="12.5" fill="#0c4a5e">peer source · PLAN → FETCH+VERIFY</text>
+<text x="215" y="318" text-anchor="middle" font-size="12.5" font-weight="600" fill="#0c4a5e">PUBLISH root-last (I1–I5)</text>
+<rect x="90" y="340" width="250" height="34" rx="7" fill="#f2f7f4" stroke="#cfe3d8"/>
+<text x="215" y="362" text-anchor="middle" font-size="12.5" fill="#3d5247">local content store (Zot → OCI layout)</text>
+<rect x="560" y="192" width="280" height="96" rx="12" fill="#ffffff" stroke="#0e7490" stroke-width="1.3"/>
+<text x="700" y="218" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1a1a1f">Satellite A — trusted peer</text>
+<text x="700" y="240" text-anchor="middle" font-size="12.5" fill="#5b6570">OCI Distribution API (HEAD/GET by digest)</text>
+<text x="700" y="260" text-anchor="middle" font-size="12.5" fill="#5b6570">content store · serve_peers: true</text>
+<rect x="560" y="332" width="280" height="84" rx="12" fill="#ffffff" stroke="#7fb6c2" stroke-width="1.2"/>
+<text x="700" y="358" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1a1a1f">Satellite C — trusted peer</text>
+<text x="700" y="380" text-anchor="middle" font-size="12.5" fill="#5b6570">fallback / resume source</text>
+<path d="M690 80 L690 120 L340 120 L280 196" fill="none" stroke="#9aa4ad" stroke-width="1.4" stroke-dasharray="5 5" marker-end="url(#g)"/>
+<text x="452" y="140" font-size="11.5" fill="#8a949e">state sync when reachable</text>
+<path d="M360 250 L560 224" fill="none" stroke="#0e7490" stroke-width="2" marker-end="url(#a)"/>
+<text x="452" y="224" font-size="12.5" font-weight="600" fill="#0e7490">① availability: HEAD digest</text>
+<path d="M560 262 L360 296" fill="none" stroke="#0e7490" stroke-width="2.4" marker-end="url(#a)"/>
+<text x="418" y="288" font-size="12.5" font-weight="600" fill="#0e7490">② GET manifests + blobs — streamed, hashed on wire</text>
+<path d="M360 344 L560 372" fill="none" stroke="#7fb6c2" stroke-width="1.8" marker-end="url(#a)"/>
+<text x="428" y="372" font-size="12.5" fill="#3d7c8a">③ next peer / resume (idempotent)</text>
+<path d="M180 196 L180 120 L245 84" fill="none" stroke="#9aa4ad" stroke-width="1.5" stroke-dasharray="5 5" marker-end="url(#g)"/>
+<text x="60" y="132" font-size="11.5" fill="#8a949e">④ fallback upstream — only if connected</text>
+<text x="70" y="452" font-size="12.5" fill="#5b6570">order: local store → trusted peers (priority + health) → upstream → explicit failure</text>
+<text x="70" y="472" font-size="12.5" fill="#5b6570">integrity is digest-derived and peer-independent; trust governs only who may be asked</text>
+</svg>
+<figcaption>Figure 1 — trusted-peer dataflow</figcaption></figure>
+<h3 id="92-peer-wire-protocol--the-oci-distribution-api-digest-only">9.2 Peer wire protocol — the OCI Distribution API, digest-only</h3>
+<p>Every Satellite already serves Distribution (B7); the peer read path is therefore plain, spec-compliant, and BYO-portable:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Operation</th>
+<th>Call</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Manifest availability</td>
+<td><code>HEAD /v2/&lt;repo&gt;/manifests/&lt;digest&gt;</code></td>
+<td>Digest reference only — <strong>peers are never asked about tags</strong> (constraint from Gap Analysis)</td>
+</tr>
+<tr class="even">
+<td>Blob availability</td>
+<td><code>HEAD /v2/&lt;repo&gt;/blobs/&lt;digest&gt;</code></td>
+<td>Used during planning and resume</td>
+</tr>
+<tr class="odd">
+<td>Manifest fetch</td>
+<td><code>GET /v2/&lt;repo&gt;/manifests/&lt;digest&gt;</code></td>
+<td><code>Accept</code> covers image + index + artifact media types</td>
+</tr>
+<tr class="even">
+<td>Blob fetch</td>
+<td><code>GET /v2/&lt;repo&gt;/blobs/&lt;digest&gt;</code></td>
+<td>Streamed; hashed on the wire</td>
+</tr>
+</tbody>
+</table>
+<p>No custom endpoint is required for v1. A <strong>batched availability check</strong> (one request answering "which of these N digests do you hold?") is a candidate optimization once N×HEAD becomes measurable overhead — deliberately deferred and listed as OQ4, since it is the only place a Satellite-specific API would leak into the peer protocol.</p>
+<h3 id="93-transfer-engine--closure-verification-and-the-five-invariants">9.3 Transfer engine — closure, verification, and the five invariants</h3>
+<p><strong>Definitions.</strong></p>
+<ul>
+<li>The <strong>closure</strong> of a root descriptor is the set of descriptors reachable via manifest references: for an index, its child manifests and <em>their</em> closures; for a manifest, its config and layer descriptors. Every artifact — image, chart, SBOM, model — is such a graph (FR7).</li>
+<li><strong>Referrers</strong> (signatures/attestations attached via <code>subject</code>) are discovered through the referrers API, not reachable <em>from</em> the root, and are therefore <strong>not part of the default closure</strong>; an opt-in <code>include_referrers</code> expansion transfers them alongside (§19).</li>
+<li>An artifact is <strong>addressable</strong> when a consumer can obtain its root manifest from the local store by tag or root digest.</li>
+</ul>
+<p><strong>Invariants.</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>ID</th>
+<th>Invariant</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>I1</td>
+<td><strong>Digest-preserving transfer.</strong> Every fetched byte stream is hashed on the wire and must equal the descriptor's digest and size; content is stored under exactly that digest. The peer path performs <strong>no media-type rewriting</strong> (contrast B3).</td>
+</tr>
+<tr class="even">
+<td>I2</td>
+<td><strong>Closure completeness before publication.</strong> All descriptors in the root's closure are present and verified locally before the artifact may become addressable.</td>
+</tr>
+<tr class="odd">
+<td>I3</td>
+<td><strong>Root-last publication.</strong> Order: blobs → child manifests → <strong>root manifest/index last</strong>, then tag association. Children stored earlier are individually valid, digest-addressed content — never a broken <em>artifact</em>.</td>
+</tr>
+<tr class="even">
+<td>I4</td>
+<td><strong>Idempotent crash recovery.</strong> Presence of a verified digest is the only resume state needed; a restarted transfer re-plans the closure, skips verified content (extending B4 to graph scope), and continues. Orphaned partial content is bounded by a janitor/GC pass.</td>
+</tr>
+<tr class="odd">
+<td>I5</td>
+<td><strong>Per-digest singleflight, bounded concurrency.</strong> Concurrent demands for one digest coalesce into one transfer; blob-level and transfer-level concurrency caps plus an optional bandwidth limiter honor the edge envelope (NFR4).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Engine phases:</strong> <code>PLAN</code> (resolve root digest from desired state; walk the graph — fetching only manifests — and diff against local presence) → <code>FETCH+VERIFY</code> (leaves first, streamed, hashed) → <code>PUBLISH</code> (root last, tag last) → <code>DONE</code>; with <code>RETRY (same peer, jittered backoff)</code> → <code>NEXT PEER</code> → <code>FALLBACK (upstream)</code> → <code>FAIL (nothing visible)</code> on error paths, and <code>RESUME</code> after crash.</p>
+<p><em>Figure 2 — transfer-engine state machine with failure and recovery edges.</em></p>
+<figure class="fig"><svg viewBox="0 0 920 430" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,system-ui,sans-serif">
+<defs><marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#0e7490"/></marker>
+<marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c2410c"/></marker></defs>
+<rect x="40" y="60" width="150" height="58" rx="12" fill="#e6f6f9" stroke="#0e7490" stroke-width="1.6"/>
+<text x="115" y="84" text-anchor="middle" font-size="14.5" font-weight="700" fill="#0c4a5e">PLAN</text>
+<text x="115" y="104" text-anchor="middle" font-size="11.5" fill="#3d7c8a">resolve root digest · walk closure · diff local</text>
+<rect x="260" y="60" width="200" height="58" rx="12" fill="#e6f6f9" stroke="#0e7490" stroke-width="1.6"/>
+<text x="360" y="84" text-anchor="middle" font-size="14.5" font-weight="700" fill="#0c4a5e">FETCH + VERIFY</text>
+<text x="360" y="104" text-anchor="middle" font-size="11.5" fill="#3d7c8a">streamed · hash == descriptor digest (I1)</text>
+<rect x="530" y="60" width="190" height="58" rx="12" fill="#e6f6f9" stroke="#0e7490" stroke-width="1.6"/>
+<text x="625" y="84" text-anchor="middle" font-size="14.5" font-weight="700" fill="#0c4a5e">PUBLISH</text>
+<text x="625" y="104" text-anchor="middle" font-size="11.5" fill="#3d7c8a">root manifest LAST · then tag (I2, I3)</text>
+<rect x="780" y="60" width="100" height="58" rx="12" fill="#eafaf3" stroke="#1baf7a" stroke-width="1.6"/>
+<text x="830" y="95" text-anchor="middle" font-size="14.5" font-weight="700" fill="#0d7a54">DONE</text>
+<path d="M190 89 L260 89" stroke="#0e7490" stroke-width="2" marker-end="url(#b)"/>
+<path d="M460 89 L530 89" stroke="#0e7490" stroke-width="2" marker-end="url(#b)"/>
+<path d="M720 89 L780 89" stroke="#0e7490" stroke-width="2" marker-end="url(#b)"/>
+<path d="M400 60 C420 22 300 22 320 60" fill="none" stroke="#0e7490" stroke-width="1.6" marker-end="url(#b)"/>
+<text x="360" y="26" text-anchor="middle" font-size="11.5" fill="#3d7c8a">per node · leaves → root (I5: singleflight, bounded)</text>
+<rect x="150" y="210" width="160" height="52" rx="12" fill="#fdf1ea" stroke="#c2410c" stroke-width="1.4"/>
+<text x="230" y="232" text-anchor="middle" font-size="13.5" font-weight="700" fill="#9a3412">RETRY</text>
+<text x="230" y="250" text-anchor="middle" font-size="11.5" fill="#9a3412">same peer · jittered backoff</text>
+<rect x="370" y="210" width="160" height="52" rx="12" fill="#fdf1ea" stroke="#c2410c" stroke-width="1.4"/>
+<text x="450" y="232" text-anchor="middle" font-size="13.5" font-weight="700" fill="#9a3412">NEXT PEER</text>
+<text x="450" y="250" text-anchor="middle" font-size="11.5" fill="#9a3412">priority + health order</text>
+<rect x="590" y="210" width="170" height="52" rx="12" fill="#fdf1ea" stroke="#c2410c" stroke-width="1.4"/>
+<text x="675" y="232" text-anchor="middle" font-size="13.5" font-weight="700" fill="#9a3412">FALLBACK</text>
+<text x="675" y="250" text-anchor="middle" font-size="11.5" fill="#9a3412">upstream — if connected</text>
+<rect x="790" y="210" width="100" height="52" rx="12" fill="#fbe9e7" stroke="#b91c1c" stroke-width="1.4"/>
+<text x="840" y="232" text-anchor="middle" font-size="13.5" font-weight="700" fill="#991b1b">FAIL</text>
+<text x="840" y="250" text-anchor="middle" font-size="11.5" fill="#991b1b">nothing visible</text>
+<path d="M340 118 L250 210" stroke="#c2410c" stroke-width="1.6" marker-end="url(#r)"/>
+<text x="238" y="168" font-size="11.5" fill="#9a3412">timeout / stream error</text>
+<path d="M310 236 L370 236" stroke="#c2410c" stroke-width="1.6" marker-end="url(#r)"/>
+<text x="316" y="228" font-size="11" fill="#9a3412">exhausted</text>
+<path d="M530 236 L590 236" stroke="#c2410c" stroke-width="1.6" marker-end="url(#r)"/>
+<path d="M760 236 L790 236" stroke="#c2410c" stroke-width="1.6" marker-end="url(#r)"/>
+<path d="M450 210 L390 118" stroke="#0e7490" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#b)"/>
+<text x="452" y="168" font-size="11.5" fill="#3d7c8a">re-enter fetch</text>
+<rect x="40" y="320" width="330" height="52" rx="12" fill="#f4f6f8" stroke="#9aa4ad" stroke-width="1.3"/>
+<text x="205" y="342" text-anchor="middle" font-size="13.5" font-weight="700" fill="#3f4a54">CRASH → RESTART → RESUME (I4)</text>
+<text x="205" y="360" text-anchor="middle" font-size="11.5" fill="#5b6570">re-PLAN · verified digests skipped · orphans GC'd</text>
+<path d="M205 320 L150 118" stroke="#9aa4ad" stroke-width="1.5" stroke-dasharray="5 5" marker-end="url(#b)"/>
+<rect x="430" y="320" width="460" height="52" rx="12" fill="#fdf6ec" stroke="#d97706" stroke-width="1.2"/>
+<text x="660" y="342" text-anchor="middle" font-size="12.5" font-weight="600" fill="#92400e">digest mismatch (T1): abort artifact from peer · demote immediately · audit event</text>
+<text x="660" y="360" text-anchor="middle" font-size="11.5" fill="#92400e">corruption is a trust signal, not a retry signal — breaker opens</text>
+</svg>
+<figcaption>Figure 2 — transfer state machine</figcaption></figure>
+<h3 id="94-publication-semantics-and-the-digest-domain-rule">9.4 Publication semantics and the digest-domain rule</h3>
+<p>B3 exposes a subtlety no prior discussion has addressed: the current replicator's media-type normalization means <strong>locally stored digests can differ from upstream digests</strong>. If Satellite A imported an artifact through that path, the digest recorded in desired state (source domain) and the digest A actually serves (local domain) may disagree — and a peer transfer that verifies against the wrong domain will either fail spuriously or, worse, "verify" the wrong expectation.</p>
+<p><strong>Rule proposed by this RFC:</strong> the peer path operates entirely in the <strong>descriptor domain of the root being transferred</strong> — the root digest requested is the root digest published, and every child is verified against the digest embedded in its parent. The peer path never rewrites, never re-normalizes, and never consults tags. Where desired state carries a source-domain digest that local history has rewritten, the mismatch is <em>detected and surfaced</em> (metric + audit event), not papered over. Longer-term, ADR-0009's ORAS copy is itself digest-preserving, which converges the domains; the peer path is simply strict from day one. A first corrective step in the source domain already exists: the author's <a href="https://github.com/container-registry/harbor-satellite/pull/637">PR #637</a> makes replication use the recorded image digest when present, so a moved source tag can no longer cause the wrong image to be replicated. The remaining fleet-wide interaction is raised explicitly as OQ2 because it touches replication behavior beyond this feature.</p>
+<p><em>Figure 3 — descriptor-graph closure and root-last publication order.</em></p>
+<figure class="fig"><svg viewBox="0 0 920 470" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,system-ui,sans-serif">
+<defs><marker id="c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#7fb6c2"/></marker></defs>
+<rect x="330" y="28" width="260" height="56" rx="12" fill="#e6f6f9" stroke="#0e7490" stroke-width="2"/>
+<text x="460" y="52" text-anchor="middle" font-size="14.5" font-weight="700" fill="#0c4a5e">Index (root)</text>
+<text x="460" y="72" text-anchor="middle" font-size="12" font-weight="600" fill="#b45309">⑨ published LAST — artifact becomes addressable</text>
+<rect x="120" y="150" width="240" height="50" rx="10" fill="#ffffff" stroke="#0e7490" stroke-width="1.4"/>
+<text x="240" y="171" text-anchor="middle" font-size="13.5" font-weight="600" fill="#1a1a1f">Manifest linux/amd64</text>
+<text x="240" y="189" text-anchor="middle" font-size="11.5" fill="#3d7c8a">⑦ fetched + verified</text>
+<rect x="560" y="150" width="240" height="50" rx="10" fill="#ffffff" stroke="#0e7490" stroke-width="1.4"/>
+<text x="680" y="171" text-anchor="middle" font-size="13.5" font-weight="600" fill="#1a1a1f">Manifest linux/arm64</text>
+<text x="680" y="189" text-anchor="middle" font-size="11.5" fill="#3d7c8a">⑧ fetched + verified</text>
+<g font-size="12.5" fill="#1a1a1f">
+<rect x="60" y="270" width="130" height="44" rx="9" fill="#f7fbfc" stroke="#7fb6c2"/><text x="125" y="288" text-anchor="middle">Config</text><text x="125" y="304" text-anchor="middle" font-size="11" fill="#3d7c8a">①</text>
+<rect x="205" y="270" width="130" height="44" rx="9" fill="#f7fbfc" stroke="#7fb6c2"/><text x="270" y="288" text-anchor="middle">Layer blob</text><text x="270" y="304" text-anchor="middle" font-size="11" fill="#3d7c8a">②</text>
+<rect x="350" y="270" width="130" height="44" rx="9" fill="#f7fbfc" stroke="#7fb6c2"/><text x="415" y="288" text-anchor="middle">Layer blob</text><text x="415" y="304" text-anchor="middle" font-size="11" fill="#3d7c8a">③ (shared — fetched once, I5)</text>
+<rect x="510" y="270" width="130" height="44" rx="9" fill="#f7fbfc" stroke="#7fb6c2"/><text x="575" y="288" text-anchor="middle">Config</text><text x="575" y="304" text-anchor="middle" font-size="11" fill="#3d7c8a">④</text>
+<rect x="655" y="270" width="130" height="44" rx="9" fill="#f7fbfc" stroke="#7fb6c2"/><text x="720" y="288" text-anchor="middle">Layer blob</text><text x="720" y="304" text-anchor="middle" font-size="11" fill="#3d7c8a">⑤</text>
+</g>
+<path d="M410 84 L260 150" stroke="#7fb6c2" stroke-width="1.6" marker-end="url(#c)"/>
+<path d="M510 84 L660 150" stroke="#7fb6c2" stroke-width="1.6" marker-end="url(#c)"/>
+<path d="M190 200 L128 270" stroke="#7fb6c2" stroke-width="1.3" marker-end="url(#c)"/>
+<path d="M240 200 L268 270" stroke="#7fb6c2" stroke-width="1.3" marker-end="url(#c)"/>
+<path d="M300 200 L400 270" stroke="#7fb6c2" stroke-width="1.3" marker-end="url(#c)"/>
+<path d="M640 200 L582 270" stroke="#7fb6c2" stroke-width="1.3" marker-end="url(#c)"/>
+<path d="M690 200 L722 270" stroke="#7fb6c2" stroke-width="1.3" marker-end="url(#c)"/>
+<path d="M700 200 L452 268" stroke="#7fb6c2" stroke-width="1.3" stroke-dasharray="3 4" marker-end="url(#c)"/>
+<rect x="640" y="30" width="240" height="64" rx="10" fill="none" stroke="#9aa4ad" stroke-width="1.2" stroke-dasharray="6 5"/>
+<text x="760" y="54" text-anchor="middle" font-size="12" fill="#5b6570">Referrers (signatures, SBOM via subject)</text>
+<text x="760" y="72" text-anchor="middle" font-size="11.5" fill="#8a949e">not in default closure · include_referrers opt-in</text>
+<path d="M640 62 L592 56" stroke="#9aa4ad" stroke-width="1.2" stroke-dasharray="3 4"/>
+<line x1="50" y1="352" x2="870" y2="352" stroke="#b45309" stroke-width="1.4" stroke-dasharray="8 6"/>
+<text x="460" y="374" text-anchor="middle" font-size="12.5" font-weight="600" fill="#b45309">visibility boundary — children by digest are valid standalone content; the ARTIFACT exists only when ⑨ lands</text>
+<text x="460" y="412" text-anchor="middle" font-size="12.5" fill="#5b6570">fetch + verify order: leaf blobs ①–⑤ (dedup shared) → child manifests ⑦⑧ → root ⑨ published last (I2, I3)</text>
+<text x="460" y="434" text-anchor="middle" font-size="12.5" fill="#5b6570">crash at any point: nothing addressable · restart resumes by digest presence (I4)</text>
+</svg>
+<figcaption>Figure 3 — closure and publication order</figcaption></figure>
+<h3 id="95-peer-selection-health-and-fallback">9.5 Peer selection, health, and fallback</h3>
+<ul>
+<li><strong>Eligibility:</strong> configured allowlist (§9.7); a peer marked <code>revoked</code> by lifecycle state (B9), failing TLS verification, or tripping its circuit breaker is ineligible.</li>
+<li><strong>Selection:</strong> filter by availability (HEAD of root digest), then order by static priority, then by a health score (EWMA of recent latency/success). v1 keeps scoring simple and observable; no consensus, no gossip.</li>
+<li><strong>Circuit breaking:</strong> consecutive failures open the breaker for a backoff window (jittered, capped); verification failures (I1) demote immediately and emit a distinct audit event — corrupt bytes are a trust signal, not a retry signal.</li>
+<li><strong>Fallback chain:</strong> peers (in order) → upstream if configured and reachable → <strong>explicit failure</strong> with a machine-readable reason (<code>no_eligible_peer</code>, <code>closure_incomplete_on_peers</code>, <code>verification_failed</code>, <code>upstream_unreachable</code>). Silent hangs are treated as bugs.</li>
+</ul>
+<h3 id="96-trust-model">9.6 Trust model</h3>
+<p>Trust answers <strong>availability and reachability</strong> questions ("whom may I ask; who may ask me"); <strong>integrity comes from digests</strong> (I1) and is peer-independent. This separation is what makes trusted-peer distribution safe in air-gapped fleets: a compromised peer can refuse service or serve garbage, but garbage cannot verify.</p>
+<ul>
+<li><strong>Transport &amp; identity:</strong> mTLS between Satellites using the existing TLS configuration surface (<code>cert_file</code>/<code>key_file</code>/<code>ca_file</code> — B8). Deployments already adopting ADR-0005 get peer identity from SPIFFE/SPIRE SVIDs with no new machinery; a pre-provisioned CA bundle covers air-gapped sites that haven't. Peer identity must match the configured peer entry (no wildcard trust).</li>
+<li><strong>Authorization (v1):</strong> binary — a trusted peer may fetch any repository this Satellite serves, optionally narrowed by a repository allowlist per peer. Fine-grained per-artifact ACLs are future work.</li>
+<li><strong>Serving role is opt-in</strong> separately from fetching (<code>serve_peers</code>), so operators can deploy read-only leechers.</li>
+</ul>
+<p><strong>Threat table.</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Threat</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>T1</td>
+<td>Peer serves wrong/corrupted bytes</td>
+<td>I1 verification; immediate demotion + audit event; nothing published</td>
+</tr>
+<tr class="even">
+<td>T2</td>
+<td>Truncated transfer (peer dies mid-blob)</td>
+<td>Size+digest check fails; retry/next-peer; root never published (I3)</td>
+</tr>
+<tr class="odd">
+<td>T3</td>
+<td>Peer lies about tags</td>
+<td>Impossible by construction — tags are never requested (§9.2)</td>
+</tr>
+<tr class="even">
+<td>T4</td>
+<td>Stale peer (holds old content)</td>
+<td>Availability is digest-presence only; "stale" content is simply <em>absent</em> for the requested digest</td>
+</tr>
+<tr class="odd">
+<td>T5</td>
+<td>Rogue device poses as peer</td>
+<td>mTLS + allowlist + identity match (B8); <code>revoked</code> lifecycle excluded (B9)</td>
+</tr>
+<tr class="even">
+<td>T6</td>
+<td>Trusted-but-compromised peer used for exfiltration via fetches</td>
+<td>Per-peer repository allowlist; audit trail of every served digest; serving opt-in</td>
+</tr>
+<tr class="odd">
+<td>T7</td>
+<td>Resource exhaustion (slow-loris peer, oversized closure)</td>
+<td>Timeouts at every phase; size ceilings from descriptor metadata; concurrency caps; breaker</td>
+</tr>
+<tr class="even">
+<td>T8</td>
+<td>Replay/duplication</td>
+<td>Content-addressed and idempotent — replay is a no-op</td>
+</tr>
+</tbody>
+</table>
+<h3 id="97-configuration-model">9.7 Configuration model</h3>
+<p>Shaped after existing <code>pkg/config</code> structures and validated fail-closed (bad peer entry ⇒ feature disabled with a logged reason, not partially enabled):</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="er">&quot;peer_distribution&quot;:</span> <span class="fu">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;enabled&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;serve_peers&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;peers&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;sat-b&quot;</span><span class="fu">,</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://10.20.0.12:8585&quot;</span><span class="fu">,</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;priority&quot;</span><span class="fu">:</span> <span class="dv">10</span><span class="fu">,</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;repositories&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;tls&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;ca_file&quot;</span><span class="fu">:</span> <span class="st">&quot;/etc/satellite/peers/ca.pem&quot;</span><span class="fu">,</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>               <span class="dt">&quot;cert_file&quot;</span><span class="fu">:</span> <span class="st">&quot;/etc/satellite/tls/client.pem&quot;</span><span class="fu">,</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>               <span class="dt">&quot;key_file&quot;</span><span class="fu">:</span> <span class="st">&quot;/etc/satellite/tls/client.key&quot;</span> <span class="fu">}</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;availability_timeout_ms&quot;</span><span class="fu">:</span> <span class="dv">800</span><span class="fu">,</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;transfer_timeout_s&quot;</span><span class="fu">:</span> <span class="dv">300</span><span class="fu">,</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;retry&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;max_attempts&quot;</span><span class="fu">:</span> <span class="dv">3</span><span class="fu">,</span> <span class="dt">&quot;backoff_initial_ms&quot;</span><span class="fu">:</span> <span class="dv">200</span><span class="fu">,</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>             <span class="dt">&quot;backoff_max_ms&quot;</span><span class="fu">:</span> <span class="dv">5000</span><span class="fu">,</span> <span class="dt">&quot;jitter&quot;</span><span class="fu">:</span> <span class="kw">true</span> <span class="fu">},</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;concurrency&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;blobs_per_transfer&quot;</span><span class="fu">:</span> <span class="dv">4</span><span class="fu">,</span> <span class="dt">&quot;transfers&quot;</span><span class="fu">:</span> <span class="dv">2</span> <span class="fu">},</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;bandwidth_limit_mbps&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;include_referrers&quot;</span><span class="fu">:</span> <span class="kw">false</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Configuration arrives like all Satellite config (locally or GC-pushed) but is <strong>fully functional with GC absent</strong> (NFR1).</p>
+<h3 id="98-observability">9.8 Observability</h3>
+<p>Metrics (names to be aligned with existing conventions — OQ5):</p>
+<table>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>Type</th>
+<th>Labels</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>satellite_peer_attempts_total</code></td>
+<td>counter</td>
+<td><code>peer</code>, <code>phase</code> (availability/fetch), <code>outcome</code></td>
+</tr>
+<tr class="even">
+<td><code>satellite_peer_transfer_bytes_total</code></td>
+<td>counter</td>
+<td><code>peer</code>, <code>direction</code> (fetched/served)</td>
+</tr>
+<tr class="odd">
+<td><code>satellite_peer_cache_fill_total</code></td>
+<td>counter</td>
+<td><code>result</code> (peer/upstream/failed)</td>
+</tr>
+<tr class="even">
+<td><code>satellite_peer_transfer_duration_seconds</code></td>
+<td>histogram</td>
+<td><code>source</code></td>
+</tr>
+<tr class="odd">
+<td><code>satellite_peer_fallback_total</code></td>
+<td>counter</td>
+<td><code>reason</code></td>
+</tr>
+<tr class="even">
+<td><code>satellite_peer_health</code></td>
+<td>gauge</td>
+<td><code>peer</code></td>
+</tr>
+</tbody>
+</table>
+<p>Structured logs carry <code>event</code>, <code>digest</code>, <code>repository</code>, <code>peer</code>, <code>attempt</code>, <code>bytes</code>, <code>duration_ms</code>, <code>outcome</code>, and a per-transfer correlation ID. Peer imports and verification failures additionally emit <strong>audit events</strong> through the existing syslog/OTel audit pipeline (B10) — an air-gapped compliance audience cares precisely about "what entered this registry, from where, verified how."</p>
+<h2 id="reference-experiment--reproducible-correctness-demonstration">Reference Experiment — reproducible correctness demonstration</h2>
+<p>The companion harness <a href="https://github.com/Harshitaakri/oci-closure-verify"><code>oci-closure-verify</code></a> demonstrates both the violation and the invariants on real registries — no cloud, no cluster, three local containers — with a <a href="https://drive.google.com/file/d/1cddB_osgdjlRfOnXYwNgiM-zy5f1iwxy/view?usp=drive_link">recorded run</a>. Its four verified behaviors map one-to-one onto §9.3: root-visible-last publication → I3; fail-closed handling of missing manifests → I2 / matrix row 10; digest-verified corruption detection → I1 / T1; singleflight deduplication of concurrent requests → I5. The scenario set:</p>
+<ol type="1">
+<li><strong>Setup:</strong> <code>peerA</code>, <code>peerC</code>, <code>local</code> registries; a multi-platform artifact (index → 2 platform manifests → configs + layers, 8-node closure) seeded to <code>peerA</code> and <code>peerC</code> with <code>crane</code>; full closure digests recorded.</li>
+<li><strong>Violation (naive copy):</strong> delete one platform child manifest from <code>peerA</code>; run a tag-first naive copy into <code>local</code>, publishing the index up front. Result: <code>crane pull --platform linux/amd64</code> succeeds while <code>linux/arm64</code> 404s — <strong>a visibly broken artifact</strong>, exactly what FR3/NFR5 forbid.</li>
+<li><strong>Invariant (engine semantics):</strong> the harness (Go, <code>go-containerregistry</code>) walks the closure, fetches leaves-first with on-the-wire hashing, and publishes the root last. <code>docker kill peerA</code> mid-blob ⇒ the root never appears in <code>local</code> (I3); re-run resumes against <code>peerC</code>, skipping verified blobs (I4); <code>crane validate</code> green.</li>
+<li><strong>Corruption:</strong> flip one byte of a blob on the peer ⇒ digest mismatch, transfer aborts, nothing published, peer demoted (T1).</li>
+<li><strong>Concurrency:</strong> two simultaneous requests for the same digest coalesce to one transfer (I5).</li>
+</ol>
+<p>The harness is deliberately shaped to become the seed of the FR6 multi-Satellite air-gapped e2e suite (extending <code>test/e2e/</code>, B11), so the application-time artifact converts directly into term deliverable work.</p>
+<h2 id="failure-mode-matrix">Failure-Mode Matrix</h2>
+<table>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Failure</th>
+<th>Detection</th>
+<th>Behavior</th>
+<th>Observable signal</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Peer down before transfer</td>
+<td>Availability HEAD timeout</td>
+<td>Next peer; breaker increments</td>
+<td><code>peer_attempts_total{outcome="unreachable"}</code></td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Peer dies mid-blob</td>
+<td>Stream error / size short</td>
+<td>Retry per policy → next peer; root unpublished</td>
+<td><code>fallback_total{reason}</code> + audit</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Corrupt bytes</td>
+<td>I1 hash mismatch</td>
+<td>Abort artifact from this peer; <strong>demote immediately</strong>; try next source</td>
+<td><code>outcome="verify_failed"</code> + audit event</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Slow peer</td>
+<td>Phase timeouts</td>
+<td>Cancel, backoff, breaker</td>
+<td>duration histogram outliers</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Divergent peers (different subsets)</td>
+<td>Per-digest availability</td>
+<td>Plan may split across peers per blob; correctness unaffected (digest-addressed)</td>
+<td>per-peer fetch counters</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Digest nowhere (no peer, no upstream)</td>
+<td>Exhausted chain</td>
+<td>Explicit failure, reason <code>not_found_anywhere</code></td>
+<td><code>cache_fill_total{result="failed"}</code></td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Local disk full mid-transfer</td>
+<td>Write error</td>
+<td>Abort; staged content GC-able; root unpublished</td>
+<td>error log + audit</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Satellite crash mid-import</td>
+<td>Process restart</td>
+<td>Re-plan; verified digests skipped (I4); completes or fails cleanly</td>
+<td>resume event in logs</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Concurrent same-digest demands</td>
+<td>Singleflight key</td>
+<td>One transfer; others await result</td>
+<td>dedup counter</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Partial closure on peer (index present, child missing)</td>
+<td>PLAN-phase HEADs</td>
+<td>Peer skipped for this artifact (or per-blob split, #5); never partial-publish</td>
+<td><code>closure_incomplete_on_peers</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="performance--resource-envelope">Performance &amp; Resource Envelope</h2>
+<ul>
+<li><strong>Throughput</strong> is LAN-bound; the CPU cost is dominated by SHA-256 on the wire (hundreds of MB/s per core on typical edge x86/ARM — to be measured in the experiment transcript).</li>
+<li><strong>Memory</strong> is O(<code>blobs_per_transfer</code> × stream-buffer): streaming I/O end-to-end, no whole-blob buffering (NFR4).</li>
+<li><strong>Disk</strong> during transfer is bounded by artifact size + staged-but-unpublished content, reclaimable by the janitor (I4).</li>
+<li><strong>Availability checking</strong> costs one HEAD per unresolved digest per candidate peer, LAN-local; the batched check (OQ4) is the escape hatch if fleets make this measurable.</li>
+<li><strong>When disabled</strong>, the feature contributes zero goroutines, zero sockets, zero config surprise (FR1).</li>
+</ul>
+<h2 id="timeline">Timeline</h2>
+<p>Twelve weeks (program window Sep 7 – Nov 27, 2026), each phase gated by an acceptance criterion:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Weeks</th>
+<th>Deliverable</th>
+<th>Acceptance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1–2</td>
+<td>ADR-0010 (<a href="https://github.com/container-registry/harbor-satellite/pull/638">PR #638</a>) iterated with maintainer review; scope + digest-domain rule settled</td>
+<td><strong>ADR-0010 approved</strong> (G1)</td>
+</tr>
+<tr class="even">
+<td>3–4</td>
+<td>Config model + validation + peer client (mTLS, HEAD/GET, timeouts)</td>
+<td>Unit tests green; misconfig ⇒ fail-closed</td>
+</tr>
+<tr class="odd">
+<td>5–7</td>
+<td>Transfer engine: closure walker, streaming verify, root-last publish, resume, singleflight</td>
+<td><strong>Fault-injection unit suite green (mid-term demo)</strong> — kill/corrupt/restart scenarios from §10</td>
+</tr>
+<tr class="even">
+<td>8–9</td>
+<td>Selection/health/breaker + fallback chain; metrics/logs/audit events</td>
+<td>Failure matrix rows 1–6 demonstrably observable</td>
+</tr>
+<tr class="odd">
+<td>10–11</td>
+<td>Multi-Satellite air-gapped e2e in <code>test/e2e</code> (compose topology, no GC container); docs draft</td>
+<td><strong>e2e green including failure recovery</strong> (FR6)</td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td>Hardening, docs (FR8), buffer for review latency</td>
+<td>Feature merged or in final review; retro</td>
+</tr>
+</tbody>
+</table>
+<h2 id="dependencies">Dependencies</h2>
+<ul>
+<li><code>go-containerregistry</code> (already vendored) for v1 graph/verify primitives; <code>oras-go/v2</code> alignment as ADR-0009 lands (B5/B6).</li>
+<li>Embedded Zot behavior only as <em>today's</em> local store behind the store seam — no Zot-specific API dependence (B5, NFR3).</li>
+<li>Existing TLS/identity surface (B8) and audit pipeline (B10).</li>
+<li><code>test/e2e</code> harness (B11) for the FR6 environment.</li>
+<li><strong>Not</strong> dependent on: Ground Control availability, Internet egress, Kubernetes.</li>
+</ul>
+<h2 id="alternatives-considered">Alternatives Considered</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Alternative</th>
+<th>Why not</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Custom P2P transfer protocol</strong></td>
+<td>Reinvents Distribution semantics; loses BYO portability; enlarges the security surface for zero capability gain — peers already speak Distribution (B7)</td>
+</tr>
+<tr class="even">
+<td><strong>Zot sync extension as the mechanism</strong></td>
+<td>Couples to a component leaving the target architecture (B5); tag/period-oriented; build-tag availability caveats (Gap Analysis)</td>
+</tr>
+<tr class="odd">
+<td><strong>Node-level cache (Spegel-style)</strong></td>
+<td>Ephemeral, cluster-internal semantics; Satellite requires durable, auditable registry import that survives node churn and works without k8s</td>
+</tr>
+<tr class="even">
+<td><strong>DHT/IPFS content network</strong></td>
+<td>Open-world discovery contradicts allowlisted air-gap trust; operationally heavy on edge hardware</td>
+</tr>
+<tr class="odd">
+<td><strong>Do nothing (status quo)</strong></td>
+<td>U1–U4 costs persist; the listing's air-gap requirement is unmet</td>
+</tr>
+<tr class="even">
+<td><strong>Publish-then-verify (optimistic import)</strong></td>
+<td>Violates NFR5/I3; the experiment's violation demo (§10.2) is exactly this failure made visible</td>
+</tr>
+</tbody>
+</table>
+<h2 id="operations">Operations</h2>
+<ul>
+<li><strong>Enablement:</strong> per-Satellite config flag, default off; canary one peer pair, then widen. Disable is instant and safe (in-flight transfers abort; nothing partially visible; staged content GC'd).</li>
+<li><strong>Downgrade:</strong> no schema/state migrations; removing config restores prior behavior bit-for-bit.</li>
+<li><strong>Troubleshooting:</strong> every failure row in §11 maps to a metric + log event; the doc set (FR8) includes a symptom→signal table and a <code>satellite peers status</code>-style diagnostic (CLI surface to be aligned with existing <code>cmd/</code> patterns).</li>
+<li><strong>Fleet hygiene:</strong> peers in <code>revoked</code> lifecycle are excluded automatically (B9); operators rotate peer TLS material through the same channels as existing Satellite TLS (B8).</li>
+</ul>
+<h2 id="security--privacy--compliance">Security / Privacy / Compliance</h2>
+<ul>
+<li><strong>Supply-chain integrity:</strong> unchanged trust root — content identity is the OCI digest; peers add availability, not authority (§9.6). Signature/attestation graphs can travel with content via the referrers expansion without new verification semantics (N4).</li>
+<li><strong>Transport:</strong> mTLS peer↔︎peer; identity pinned to configured peer entries; SPIFFE-ready (B8/ADR-0005).</li>
+<li><strong>Auditability:</strong> every import records source peer, digest, outcome through the existing audit sinks (B10) — the compliance story for air-gapped sites is "every byte's provenance is logged and hash-verified."</li>
+<li><strong>Privacy:</strong> no new data classes; peer traffic stays on the local segment; no telemetry leaves the site that doesn't already.</li>
+<li><strong>Egress posture:</strong> the feature <em>reduces</em> WAN egress and introduces none of its own.</li>
+</ul>
+<h2 id="risks">Risks</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>ADR-0009 churn</strong> lands mid-term and moves the store/copy substrate</td>
+<td>The source abstraction (§9.1) is the seam; engine logic (closure/verify/publish) is substrate-independent; deliverables sequenced so the ADR settles interfaces first</td>
+</tr>
+<tr class="even">
+<td><strong>Review bandwidth</strong> on a fast-moving repo</td>
+<td>ADR-first process; small PRs mapped to §13 phases; e2e evidence attached to each</td>
+</tr>
+<tr class="odd">
+<td><strong>Zot behavioral variance / removal timing</strong></td>
+<td>Distribution-primitives-only baseline (NFR3); store behind a seam</td>
+</tr>
+<tr class="even">
+<td><strong>Peer misconfiguration at fleet scale</strong></td>
+<td>Fail-closed validation (§9.7); explicit reasons; docs symptom table</td>
+</tr>
+<tr class="odd">
+<td><strong>Scope creep toward discovery/federation</strong></td>
+<td>Non-goals N1/N3 enforced; future-work parking lot (§19)</td>
+</tr>
+<tr class="even">
+<td><strong>Digest-domain interactions with legacy imports</strong> (B3)</td>
+<td>Strict rule + detection metric (§9.4); surfaced as OQ2 rather than silently decided</td>
+</tr>
+</tbody>
+</table>
+<h2 id="future-work">Future Work</h2>
+<ul>
+<li><strong>Batched availability API</strong> (OQ4) once HEAD fan-out is measurable.</li>
+<li><strong>Peer discovery</strong> (mDNS/DNS-SD; SPIFFE-federated attestation) layered on the same source abstraction.</li>
+<li><strong>Referrers-aware default policies</strong> (e.g., "always carry signatures for repos matching X").</li>
+<li><strong>Cross-site federation</strong> over intermittent WAN with scheduling/backpressure.</li>
+<li><strong>Bandwidth-aware plan splitting</strong> across multiple peers per closure (matrix row 5 formalized into an optimizer).</li>
+<li><strong>Policy-differentiated peers</strong> (per-peer artifact-type or namespace policies) under the ADR-0009 policy engine.</li>
+</ul>
+<h2 id="open-questions-for-maintainers">Open Questions for Maintainers</h2>
+<table>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Question</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>OQ1</td>
+<td><strong>Staging mechanism preference:</strong> hold-root-last into the live store (proposed) vs. a staging repository namespace vs. relying on upload-session semantics — any operational constraints from existing deployments?</td>
+</tr>
+<tr class="even">
+<td>OQ2</td>
+<td><strong>Digest-domain policy (§9.4):</strong> should the legacy media-type normalization (B3) be retired fleet-wide as ADR-0009 lands, and should desired state carry source-domain digests only?</td>
+</tr>
+<tr class="odd">
+<td>OQ3</td>
+<td><strong>Peer serving in BYO mode:</strong> is "bare registry as peer" (no Satellite process on the serving side) a supported topology for v1, or must both ends run Satellite?</td>
+</tr>
+<tr class="even">
+<td>OQ4</td>
+<td><strong>Appetite for a batched availability endpoint</strong>, and if so, whether it should live under a Satellite-owned route rather than <code>/v2/</code>?</td>
+</tr>
+<tr class="odd">
+<td>OQ5</td>
+<td><strong>Metric naming conventions</strong> to match existing/planned Satellite telemetry?</td>
+</tr>
+<tr class="even">
+<td>OQ6</td>
+<td><strong>Policy gate for peer-sourced content:</strong> confirmed that peer fills traverse the same ADR-0009 evidence/policy stages as upstream fills (this RFC assumes yes)?</td>
+</tr>
+</tbody>
+</table>
+<h2 id="audit-log">Audit Log</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Date</th>
+<th>Version</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2026-08-18</td>
+<td>v0.1</td>
+<td>Initial draft for discussion</td>
+</tr>
+<tr class="even">
+<td>2026-08-18</td>
+<td>v0.2</td>
+<td>Author attribution (Harshita Kumari); integrated <code>oci-closure-verify</code> harness + demo, PR #637 (digest-drift fix), PR #638 (ADR-0010 draft)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="references">References</h2>
+<ul>
+<li>Upstream: <a href="https://github.com/container-registry/harbor-satellite/issues/542">harbor-satellite#542</a> · Program: <a href="https://github.com/cncf/mentoring/issues/1999">cncf/mentoring#1999</a></li>
+<li>ADRs: <a href="https://github.com/container-registry/harbor-satellite/blob/main/docs/decisions/0009-transparent-oci-registry-proxy.md">0009 — Transparent OCI registry proxy</a> · <a href="https://github.com/container-registry/harbor-satellite/blob/main/docs/decisions/0005-spiffe-identity-and-security.md">0005 — SPIFFE identity</a> · <a href="https://github.com/container-registry/harbor-satellite/blob/main/docs/decisions/0006-satellite-lifecycle-states.md">0006 — Lifecycle states</a> · <a href="https://github.com/container-registry/harbor-satellite/blob/main/docs/decisions/0001-skopeo-vs-crane.md">0001</a>/<a href="https://github.com/container-registry/harbor-satellite/blob/main/docs/decisions/0002-zot-vs-docker-registries.md">0002</a> (historical)</li>
+<li>Code anchors: <code>internal/satellite/state/replicator.go</code>, <code>pkg/config/config.go</code>, <code>internal/satellite/registry/</code>, <code>test/e2e/</code>, <code>docker-compose.byo.yml</code>, <code>go.mod</code></li>
+<li>Specs: <a href="https://github.com/opencontainers/distribution-spec">OCI Distribution Spec</a>, <a href="https://github.com/opencontainers/image-spec">OCI Image Spec</a> (descriptor graphs, referrers)</li>
+<li>Prior art: <a href="https://d7y.io/">Dragonfly</a>, <a href="https://github.com/uber/kraken">Kraken</a>, <a href="https://github.com/spegel-org/spegel">Spegel</a>, <a href="https://zotregistry.dev/">Zot sync</a></li>
+<li>Author artifacts: <a href="https://github.com/Harshitaakri/oci-closure-verify"><code>oci-closure-verify</code></a> verification harness (<a href="https://drive.google.com/file/d/1cddB_osgdjlRfOnXYwNgiM-zy5f1iwxy/view?usp=drive_link">demo</a>) · <a href="https://github.com/container-registry/harbor-satellite/pull/637">PR #637</a> digest-drift fix + regression test · <a href="https://github.com/container-registry/harbor-satellite/pull/638">PR #638</a> ADR-0010 draft</li>
+<li>Community findings credited in §7: <code>1amKhush</code> (tag/digest divergence reproduction), <code>shreyashsri79</code> (ADR-0009 transition &amp; build-tag archaeology), <code>harshal0704</code> (BYO portability; state semantics)</li>
+</ul>
+
+</main></div></body></html>
