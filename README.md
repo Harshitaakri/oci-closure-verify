@@ -1,4 +1,4 @@
-# Descriptor-Graph P2P Transfer — Experiment
+# OCI Descriptor-Closure Verification — P2P Transfer Experiment
 
 A hardware-free experiment supporting [harbor-satellite#542 — LFX Mentorship
 Term 3: Air-Gapped Peer-to-Peer OCI Image
