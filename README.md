@@ -16,7 +16,7 @@ Three local registry containers stand in for a small trusted-peer topology:
 |-----------|------------------------------------------|
 | `peerA`   | Primary peer, seeded with a full artifact |
 | `peerC`   | Fallback peer                             |
-| `local`   | The "pulling" Satellite's own registry (Zot; falls back to `registry:2` if Zot config is uncooperative) |
+| `local`   | The "pulling" Satellite's own registry (`registry:2`) |
 
 The artifact under test is a small **multi-arch image** copied in with
 `crane` — an index → two platform manifests → configs + layers, an ~8-node
@@ -34,21 +34,23 @@ docker compose up -d
 
 Four demonstrations, run in priority order:
 
-1. **The violation (naive copy).** One platform child manifest is deleted
-   from `peerA` after seeding. A tag-first naive copy publishes the root
-   index locally *before* discovering the hole, so `crane pull --platform
-   linux/arm64` against `local` fails while `linux/amd64` succeeds — a
-   broken artifact is now live locally. This is exactly the failure mode
-   the invariant below forbids.
+1. **The violation (naive copy).** Simulated by deleting the arm64 child
+   manifest from the local copy after a full transfer — the same end state
+   a tag-first copier produces by publishing the index before its children.
+   Notably, `crane` itself refuses to create this state; only a naive custom
+   copier can. `crane pull --platform linux/arm64` against `local` fails
+   while `linux/amd64` succeeds — a broken artifact is now live locally.
+   This is exactly the failure mode the invariant below forbids.
 
    <img width="1912" height="782" alt="Image" src="https://github.com/user-attachments/assets/6f231a6a-cd63-4708-b47e-58a253475f9b" />
 
-2. **The invariant (this harness).** A small Go program (`~150–200` lines,
-   built directly on `go-containerregistry`) walks the descriptor graph and
-   fetches + digest-verifies **leaves → children → root**, publishing the
-   root manifest only after the full closure is verified. Killing `peerA`
-   mid-blob-transfer means the root never appears locally; rerunning against
-   `peerC` completes successfully and `crane validate` passes.
+2. **The invariant (this harness).** A small Go program (`~230` lines,
+   built directly on `net/http` + the OCI distribution spec) walks the
+   descriptor graph and fetches + digest-verifies **leaves → children →
+   root**, publishing the root manifest only after the full closure is
+   verified. Stopping `peerA` mid-transfer means the root never appears
+   locally; rerunning against `peerC` completes successfully and both
+   platform pulls pass.
 
    <img width="1917" height="718" alt="Image" src="https://github.com/user-attachments/assets/e53725bb-c7ec-4279-866e-f61f9085c630" />
 
