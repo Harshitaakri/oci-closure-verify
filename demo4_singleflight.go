@@ -1,11 +1,15 @@
+//go:build ignore
+
 package main
 
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"sync"
 	"sync/atomic"
 
@@ -49,9 +53,15 @@ func fetchBlobDeduped(base, repo, digest string) ([]byte, error) {
 }
 
 func main() {
-	base := "http://localhost:5002" // peerC
-	repo := "myapp"
-	digest := "sha256:0b4812acd9ecd32b96a2d8c30f9f91632a42a56f0bfceed3322402dbfb6d9083"
+	base := flag.String("base", "http://localhost:5002", "peer base URL")
+	repo := flag.String("repo", "myapp", "repository name")
+	dgst := flag.String("digest", "", "blob digest to fetch (required)")
+	flag.Parse()
+	if *dgst == "" {
+		fmt.Fprintln(os.Stderr, "usage: demo4_singleflight -digest sha256:...")
+		os.Exit(1)
+	}
+	digest := *dgst
 
 	var wg sync.WaitGroup
 	results := make([]error, 2)
@@ -61,7 +71,7 @@ func main() {
 		wg.Add(1)
 		go func(idx int) {
 			defer wg.Done()
-			_, err := fetchBlobDeduped(base, repo, digest)
+			_, err := fetchBlobDeduped(*base, *repo, digest)
 			results[idx] = err
 			fmt.Printf("caller %d finished, err=%v\n", idx, err)
 		}(i)

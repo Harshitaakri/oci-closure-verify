@@ -69,16 +69,17 @@ evidence — no GPU or special hardware required to reproduce any of this.
 
 ```
 .
-├── docker-compose.yml       # peerA, peerC, local registries
+├── docker-compose.yml          # peerA, peerC, local registries
+├── main.go                     # ~230-line transfer harness (graph walk + digest verify + publish)
+├── demo4_singleflight.go       # standalone demo 4 (concurrent request dedup)
 ├── scripts/
-│   ├── seed.sh              # builds & pushes the multi-arch test artifact
-│   └── run-demos.sh         # runs demos 1–4 in order, tee'd to results/
-├── internal/
-│   └── walker/               # descriptor-graph walk + digest verification
-├── cmd/
-│   └── harness/               # the ~150–200 line transfer harness
+│   ├── seed.sh                 # copies a multi-arch test artifact to both peers
+│   └── run-demos.sh            # runs demos 1–4 in order, tee'd to results/
+├── application/                # LFX application materials (RFC, cover letter, resume)
+├── docs/
+│   └── architecture.png        # system architecture diagram
 └── results/
-    └── run.log               # captured output from the last run
+    └── run.log                 # captured output from the last run
 ```
 
 ## Design notes
@@ -134,7 +135,7 @@ This repo is part of my application for [container-registry/harbor-satellite#542
 
 **Related PRs:**
 - [container-registry/harbor-satellite#638](https://github.com/container-registry/harbor-satellite/pull/638) — ADR-0010: Peer-to-peer artifact distribution design
-- [container-registry/harbor-satellite#637](https://github.com/container-registry/harbor-satellite/pull/637) — Fix: resolve replication source by digest when present (closes the moved-tag window)
+- [container-registry/harbor-satellite#637](https://github.com/container-registry/harbor-satellite/pull/637) — Fix: digest-pinned source resolution for DirectDeliverer tarball path
 
 **Program listing:**
 - Issue: [container-registry/harbor-satellite#542](https://github.com/container-registry/harbor-satellite/issues/542)

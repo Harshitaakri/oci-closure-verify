@@ -1,0 +1,80 @@
+
+========================================
+
+DEMO 1: The violation — naive tag-first copy
+
+Copying full artifact to local...
+Deleting arm64 child manifest from local: sha256:45e09956dc667c5ef...
+Index tag is still live, but arm64 child is gone.
+
+Pulling linux/amd64 from local...
+[PASS] linux/amd64 pulled OK — this platform's closure is intact
+
+Pulling linux/arm64 from local...
+Error: GET http://localhost:5003/v2/myapp/manifests/sha256:45e09956dc667c5eff3583c9d94830261fb1ca0be10a0a7db36266edf5de9e1d: MANIFEST_UNKNOWN: manifest unknown; map[Name:myapp Revision:sha256:45e09956dc667c5eff3583c9d94830261fb1ca0be10a0a7db36266edf5de9e1d]
+[PASS] linux/arm64 FAILED — broken artifact is live locally (this is the violation)
+
+The index was tagged before verifying all children exist.
+A closure-aware copier would never have tagged the root.
+
+========================================
+
+DEMO 2: The invariant — closure-verified transfer
+
+2a: Stopping peerA, running harness...
+Transferring myapp/latest:latest  from http://localhost:5001  to http://localhost:5003
+Walking descriptor graph, fetching + verifying every node...
+[FAIL] transfer aborted: Get "http://localhost:5001/v2/myapp/manifests/latest": dial tcp [::1]:5001: connect: connection refused
+[PASS] nothing was published to destination (fail-closed)
+exit status 1
+[PASS] harness failed cleanly against stopped peer
+
+Checking local registry for myapp:latest...
+[PASS] nothing published to local (fail-closed holds)
+
+2b: Starting peerA, running harness against peerC...
+Transferring myapp/latest:latest  from http://localhost:5002  to http://localhost:5003
+Walking descriptor graph, fetching + verifying every node...
+[PASS] full closure verified: 56 nodes
+Publishing verified closure to destination (blobs first, root manifest last)...
+[PASS] root published and tagged 'latest' — LAST, only after full closure verified
+[PASS] harness completed successfully against peerC
+
+Validating artifact at local — pulling both platforms...
+[PASS] linux/amd64 pulled OK
+[PASS] linux/arm64 pulled OK
+[PASS] full closure intact — all platforms available
+
+========================================
+
+DEMO 4: Concurrency — singleflight request deduplication
+
+Firing 2 simultaneous requests for the SAME digest...
+  (this caller got a SHARED result — no extra network call)
+caller 1 finished, err=<nil>
+  (this caller got a SHARED result — no extra network call)
+caller 0 finished, err=<nil>
+
+[RESULT] logical requests: 2, actual network fetches: 1
+[PASS] singleflight deduped the concurrent identical requests
+
+========================================
+
+DEMO 3: Corruption — digest mismatch detection
+
+Corrupting a blob in peerC's storage...
+Flipped first byte of a blob
+
+Running harness against corrupted peerC...
+Transferring myapp/latest:latest  from http://localhost:5002  to http://localhost:5003
+Walking descriptor graph, fetching + verifying every node...
+[FAIL] transfer aborted: digest mismatch for sha256:9897c99a1a7966055017d1a70878f5f6724f9a8deae5f3405838eaeda164b1c4: computed sha256:934c34f4acfd0d906915cabf2d4d6ee7bcf4029809d46b4889f0366cb8c74541 (corrupt or tampered)
+[PASS] nothing was published to destination (fail-closed)
+exit status 1
+[PASS] transfer aborted — digest mismatch caught, nothing published
+
+[PASS] local registry clean — fail-closed holds
+
+========================================
+
+All demos complete.
